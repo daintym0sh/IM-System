@@ -38,6 +38,7 @@ public class Client {
     public static void main(String[] args) throws IOException {
         
         //Solicits input from client user with a scanner then closes scanner
+        System.out.println("Enter a message to send to the server:");
         Scanner scan = new Scanner(System.in);
         String input = scan.next();
         scan.close();
