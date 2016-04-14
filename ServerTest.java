@@ -1,7 +1,7 @@
 import java.io.IOException;
 import javax.swing.JFrame;
 /**
- *ServerTest tests the functionality of the Server class
+ *ServerTest tests the functionality of the Server class.
  * 
  * @author John
  */

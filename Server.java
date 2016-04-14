@@ -4,12 +4,13 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.*;
 import javax.swing.*;
+import javax.swing.text.DefaultCaret;
 /**
- * Server sets up a socket that can waits and connects to client sockets, reads from an input stream, and writes to an output stream
+ * Server sets up a socket that can waits and connects to client sockets, reads from an input stream, and writes to an output stream.
  * 
  * @author John
  */
-public class Server extends JFrame {
+public class Server extends JFrame{
     
     private ServerSocket servsock;
     private Socket sock;
@@ -39,35 +40,60 @@ public class Server extends JFrame {
         add(serverText, BorderLayout.SOUTH);
         serverWindow = new JTextArea();
         add(new JScrollPane(serverWindow));
+        DefaultCaret caret = (DefaultCaret)serverWindow.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         setSize(300, 150); 
         setVisible(true);
     }
     /**
-     * Sets of the SeverSocket servsock to listen for and accept connection 
-     * to client sockets on port 444. 
-     * Sets up BufferedReader to read from the input stream.
-     * Appends clientMessage to the chat window.
+     * Sets up and runs a Server object by calling the methods below.
      * 
      * @throws IOException
      */
-    public void run() throws IOException {
+    public void run() throws IOException{
         try{
-             //Creates server socket on port 444 and listens for client connection requests
-             servsock = new ServerSocket(444);
-             sock = servsock.accept();
-             // Sets up a buffered input reader to read data from input stream
-             input = new InputStreamReader(sock.getInputStream());
-             reader = new BufferedReader(input);
-             
-             //Makes a message string equal to message sent from client
-             clientMessage = reader.readLine();
-             serverWindow.append("\nCLIENT: " + clientMessage);
+            connectClient();
+            while(true){
+                chatting();
+            }
         }finally{
             closeOut();
         }
     }
     /**
-     * Prints the String message to the output stream
+     * Sets up ServerSocket servsock on port 444 and listens for client connection requests.
+     * Accepts a client request when it is made.
+     * Disables ability to type in JTextField serverText until connection is made.
+     * Sets up BufferedReader to read from the input stream.
+     * 
+     * @throws IOException
+     */
+    private void connectClient() throws IOException{
+        servsock = new ServerSocket(444);
+        serverText.setEditable(false);
+        serverWindow.append("Waiting for clients...");
+        sock = servsock.accept();
+        serverText.setEditable(true);
+        serverWindow.append("\nA client has connected.");
+        // Sets up a buffered input reader to read data from input stream
+        input = new InputStreamReader(sock.getInputStream());
+        reader = new BufferedReader(input);
+    }
+    /**
+     * Appends the serverMessage to the chat window
+     * 
+     * @throws IOException
+     */
+    private void chatting() throws IOException{
+        //Sets String clientMessage equal to the String received from the input stream
+        //Appends clientMessage to chat window
+        clientMessage = reader.readLine();
+        if(clientMessage != null){
+            serverWindow.append("\nCLIENT: " + clientMessage);
+        }
+    }
+    /**
+     * Prints the String message to the output stream and flushes PrintStream print
      * 
      * @param message - a String equal to the message that the Client object wants to send
      * @throws IOException
@@ -76,13 +102,17 @@ public class Server extends JFrame {
         PrintStream print = new PrintStream(sock.getOutputStream());
         print.println(message);
         serverWindow.append("\nSERVER: " + message);
+        print.flush();
     }
     /**
-     * Closes the Socket sock
+     * Closes the Socket sock and disables ability to type in JTextField serverText
      * 
      * @throws IOException
      */
-    private void closeOut() throws IOException {
+    private void closeOut() throws IOException{
+        sock.close();
         servsock.close();
+        serverWindow.append("\nConnection closed.");
+        serverText.setEditable(false);
     }
 }

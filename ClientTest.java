@@ -1,7 +1,7 @@
 import java.io.IOException;
 import javax.swing.JFrame;
 /**
- *ClientTest tests the functionality of the Client class
+ *ClientTest tests the functionality of the Client class.
  * 
  * @author John
  */
@@ -12,5 +12,4 @@ public class ClientTest extends JFrame {
         client.setDefaultCloseOperation(EXIT_ON_CLOSE);
         client.run();
     }
-
 }
